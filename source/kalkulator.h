@@ -9,6 +9,8 @@ class QLineEdit;
 class QStatusBar;
 class QRadioButton;
 class QSpinBox;
+class QListWidget;
+
 class Kalkulator : public QWidget
 {
     Q_OBJECT
@@ -70,6 +72,11 @@ class Kalkulator : public QWidget
 
     QStatusBar * statBar;
 
+    QListWidget * listwidget;
+    QPushButton * hideButton;
+    QPushButton * itemremoveButton;
+    QPushButton * clearButton;
+
     void setupForm();
     void loadSettings();
     void setEn();
@@ -79,9 +86,10 @@ class Kalkulator : public QWidget
 public:
     Kalkulator(QWidget *parent = nullptr);
     ~Kalkulator();
-public slots:
+private slots:
     void pushed();
     void calculate();
     void setSettings();
+    void hideshow();
 };
 #endif // KALKULATOR_H

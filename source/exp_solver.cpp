@@ -375,5 +375,3 @@ std::string eval(std::string str, bool decimal, int l)
     else
         return evaluate(str, decimal);
 }
-
-

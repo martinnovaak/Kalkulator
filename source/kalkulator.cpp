@@ -8,11 +8,10 @@
 #include <QMessageBox>
 #include <QRadioButton>
 #include <QSpinBox>
-
+#include <QListWidget>
 #include <QStatusBar>
-
+#include <QSpacerItem>
 #include <QSettings>
-//#include <QRegExpValidator>
 
 Kalkulator::Kalkulator(QWidget *parent)
     : QWidget(parent)
@@ -36,10 +35,6 @@ void Kalkulator::setupForm()
     layoutText->addWidget(lbl);
     layoutText->addWidget(ledit);
     layout->addLayout(layoutText);
-
-    //povolení psaní do LineEditu jen číslic, desetinných teček a operací
-    //QRegExp rx("[0-9]+-*/%.");
-    //ledit->setValidator(new QRegExpValidator(rx, this));
 
     QVBoxLayout * layoutBtns = new QVBoxLayout;
 
@@ -160,6 +155,20 @@ void Kalkulator::setupForm()
     settings->addWidget(setButton);
     layout->addLayout(settings);
 
+    listwidget = new QListWidget();
+    hideButton = new QPushButton(tr("Hide history"));
+    itemremoveButton = new QPushButton(tr("Remove item"));
+    clearButton = new QPushButton(tr("Clear history"));
+    //QSpacerItem * spacer = new QSpacerItem(200, hideButton->height(),QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+    layout->addWidget(listwidget);
+    QHBoxLayout * listviewbtns = new QHBoxLayout();
+    listviewbtns->addWidget(hideButton);
+    listviewbtns->addWidget(itemremoveButton);
+    //listviewbtns->addItem(spacer);
+    listviewbtns->addWidget(clearButton);
+    layout->addLayout(listviewbtns);
+
     layout->addWidget(statBar);
     this->setLayout(layout);
 
@@ -199,6 +208,12 @@ void Kalkulator::setupForm()
 
     connect(equals, SIGNAL(clicked()), this, SLOT(calculate()));
     connect(setButton, SIGNAL(clicked()), this, SLOT(setSettings()));
+
+    connect(clearButton, &QPushButton::clicked, this->listwidget, &QListWidget::clear);
+    connect(itemremoveButton, &QPushButton::clicked, this, [this]{delete this->listwidget->takeItem(listwidget->currentRow());});
+    connect(hideButton, &QPushButton::clicked, this, &Kalkulator::hideshow);
+
+    this->setFixedSize(0,0);
 }
 
 void Kalkulator::setSettings()
@@ -209,6 +224,21 @@ void Kalkulator::setSettings()
     settings.setValue("decimal", decimal);
     settings.setValue("numOfDec", num);
     setEn();
+}
+
+void Kalkulator::hideshow()
+{
+    if (this->listwidget->isVisible())
+    {
+        this->listwidget->setVisible(false);
+        this->hideButton->setText(tr("Show history"));
+    }
+    else
+    {
+        this->listwidget->setVisible(true);
+        this->hideButton->setText(tr("Hide history"));
+    }
+        this->setFixedSize(0,0);
 }
 
 void Kalkulator::setEn()
@@ -243,7 +273,6 @@ void Kalkulator::pushed()
    QObject * obj = QObject::sender();
    if (obj == num0)
     this->ledit->setText(this->ledit->text().insert(this->ledit->cursorPosition(),"0"));
-               //this->ledit->text() + "0" );
    else if(obj == num1)
     this->ledit->setText(this->ledit->text().insert(this->ledit->cursorPosition(),"1"));
    else if(obj == num2)
@@ -307,7 +336,6 @@ void Kalkulator::pushed()
        QString a = this->ledit->text();
        if (a.count() < 1)
            return;
-       //a.remove(a.count()-1,1);
        if(ledit->cursorPosition() == 0 )
            return;
        a.remove(ledit->cursorPosition()-1,1); // vymaze char z indexu pred kurzorem
@@ -321,8 +349,8 @@ void Kalkulator::calculate()
         lbl->setText(ledit->text());
         std::string l = eval(ledit->text().toStdString(), this->decimal, num);
         QString qstr =  QString::fromStdString(l);
+        listwidget->addItem(ledit->text() + " = " + qstr);
         ledit->setText(qstr);
-        //this->statBar->showMessage(QString::number(Number::getPocet())); //test na kontrolu poctu instanci
         this->statBar->showMessage(tr("Calculator with up to 200 integer digits and 100 decimal digits"));
     }  catch (NumberException & e) {
        QMessageBox::warning(this, tr("Error"),tr(e.what()));

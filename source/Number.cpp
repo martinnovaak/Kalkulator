@@ -572,7 +572,10 @@ void Number::division(Number& a, bool decimal)
 			}
 			else
 			{
-				q_ = (u[j] * 10 + u[j + 1]) / v[0];
+                if (v[0])
+                    q_ = (u[j] * 10 + u[j + 1]) / v[0];
+                else
+                    throw NumberException(Kalkulator::tr("Dividing by zero!")); // k tomuto deleni by vubec nemelo dojit, ale kvuli prekladaci radsi odchytavam, hlasil warning
 			}
 
 			while ((v[1] * q_) > ((u[j] * 10 + u[j + 1] - q_ * v[0]) * 10 + u[j + 2])) // test ze: v_2*q_ > (u_j * 10 + u_(j+1) - q_*v1)*10 + u_(j+2)
