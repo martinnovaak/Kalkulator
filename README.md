@@ -1,2 +1,2 @@
 # Kalkulator
-Grafická kalkulačka propočítání s velkými čísly.
+Grafická kalkulačka pro počítání s velkými čísly.
